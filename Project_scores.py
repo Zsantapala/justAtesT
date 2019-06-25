@@ -22,6 +22,7 @@ with open('report.txt',encoding='utf-8') as f:
 	Fina_report=''
 	for ini in range(len(new_report)):
 		if ini==0:
+			new_report[ini].insert(0,'名次')
 			new_report[ini].append('总分')
 			new_report[ini].append('平均分')
 			Fina_report=' '.join(new_report[ini])+'\n'
