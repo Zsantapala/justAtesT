@@ -34,10 +34,10 @@ report=report[:2]+sorted(report[2:],key=lambda x:x[-1],reverse=True)      #根�
 Fina_report=''
 for ini in range(len(report)):
 	if ini==0:
-			report[ini].insert(0,'名次')
-			report[ini].append('总分')
-			report[ini].append('平均分')
-			Fina_report='  '.join(report[ini])+'\n'
+		report[ini].insert(0,'名次')
+		report[ini].append('总分')
+		report[ini].append('平均分')
+		Fina_report='  '.join(report[ini])+'\n'
 	elif ini==1:
 		report[1].insert(0,'0')
 		Fina_report+=report[1][0]+'   '+'   '.join(map(str,report[1][1:]))+'\n'
