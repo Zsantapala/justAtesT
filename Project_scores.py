@@ -31,20 +31,17 @@ report.insert(1,avg_value)
 report=report[:2]+sorted(report[2:],key=lambda x:x[-1],reverse=True)      #根据平均成绩排序
 
 #新建空字符串，然后把列表内容依次写入
-Fina_report=''
-for ini in range(len(report)):
-	if ini==0:
-		report[ini].insert(0,'名次')
-		report[ini].append('总分')
-		report[ini].append('平均分')
-		Fina_report='  '.join(report[ini])+'\n'
-	elif ini==1:
-		report[1].insert(0,'0')
-		Fina_report+=report[1][0]+'   '+'   '.join(map(str,report[1][1:]))+'\n'
-	else:
-		report[ini].insert(0,str(ini-1))                                          #添加排序数
-		#添加成绩，并用score函数判断是否低于60分，如果是则换成'不及格'字符串
-		Fina_report+='   '.join(report[ini][:2])+'   '+'   '.join(map(score,report[ini][2:-2]))+'   '+'   '.join(map(str,report[ini][-2:]))+'\n'
+report[0].insert(0,'名次')
+report[0].append('总分')
+report[0].append('平均分')
+report[1].insert(0,'0')
+Fina_report='  '.join(report[0])+'\n'+report[1][0]+'   '.join(map(str,report[1][1:]))+'\n'
+
+stu_score=report[2:]
+for ini in range(len(stu_score)):
+	stu_score[ini].insert(0,str(ini+1))                                        #添加排序数
+	#添加成绩，并用score函数判断是否低于60分，如果是则换成'不及格'字符串
+	Fina_report+='   '.join(stu_score[ini][:2])+'   '.join(map(score,stu_score[ini][2:-2]))+'   '.join(map(str,stu_score[ini][-2:]))+'\n'
 
 #保存文档
 with open('Final_report.txt','w',encoding='utf-8') as wf:
