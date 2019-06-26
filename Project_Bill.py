@@ -1,4 +1,4 @@
-#-*-conding:utf-8-*-
+#-*-coding:utf-8-*-
 #!/usr/bin/pthon
 import os,time,xlwt  #pip install xlwt
 
@@ -42,7 +42,7 @@ def AddAcount(dataB,dataC):                 #记账函数
 def iniBalance(dataB):                    #初始化资产负债表
 	totalAcoun=check_input('请输入总资产/W:')
 	Liabili=check_input('请输入负债/W:')
-	Netasset=check_input('请输入净资产/W:')
+	Netasset=str(int(totalAcoun)-int(Liabili))
 	dataTimeA=time.localtime()
 	dayA=time.strftime('%Y{Y}%m{m}%d{d}',dataTimeA).format(Y='年',m='月',d='日')
 	timeA=time.strftime('%H:%M:%S',dataTimeA)
@@ -109,28 +109,35 @@ def MainInq(dataB,dataC):
 
 
 def inqCompany(dataC):                       #查询公司记录
-	comp=input('请输入公司名').strip()
-	compRecord=[]
-	for company in dataC[1:]:
-		if company[0]==comp:
-			compRecord.append(company)
-	if compRecord:
+	if len(dataC)==1:
+		print ('你没有任何与其他公司的记录，快去添加记录吧！')
+		return
+	else :
+		comp=input('请输入要查询的公司名').strip()
+		compRecord=[]
+		for company in dataC[1:]:
+			if company[0]==comp:
+				compRecord.append(company)
+		if compRecord:
 			print ('与%s共有%d笔交易\n' %(comp,len(compRecord)))
 			for record in compRecord:
 				print ('交易时间：%s' %record[5])
 				print ('收入：%s' %record[1])
-				print ('收入：%s' %record[2])
-				print ('收入：%s' %record[3])
-				print ('收入：%s\n' %record[4])
+				print ('支出：%s' %record[2])
+				print ('应收账款：%s' %record[3])
+				print ('应付账款：%s\n' %record[4])
 				print ('')
 				return
-	else:
-		print ('您没有没有与%s公司的记录......' %comp)
-		return 	
+		else:
+			print ('您没有没有与%s公司的记录......' %comp)
+			return 	
 
 def inqRecenReco(dataC):                      #查询最近十笔记录
-	if len(dataC)-1<10:
-		print ('当前你总共有%d笔记录' %(len(dataC)-1))
+	if len(dataC)==1:
+		print ('你没有任何与其他公司的记录，快去添加记录吧！')
+		return
+	elif 1<len(dataC)<10:
+		print ('当前你总共只有%d笔记录' %(len(dataC)-1))
 		print ('交易对象 收入 支出 应收账款 应付账款 交易时间')
 		for record in dataC[:0:-1]:
 			print (record[0],record[1],record[2],record[3],record[4],record[5])
@@ -168,7 +175,7 @@ if __name__=='__main__':
 			saveFiles(DforB,DforC)
 	while True:
 		DforB,DforC=loadFiles()
-		print ('1.查询;  2.记账;  3.生成Excel文本;  4.其他任意字符退出；')
+		print ('1.查帐;  2.记账;  3.生成Excel文本;  4.其他任意字符退出；')
 		service=input('请选择服务:')
 		print ('')
 		print ('')
@@ -187,4 +194,4 @@ if __name__=='__main__':
 		else:
 			print ('程序退出......')
 			time.sleep(3)
-			exit(1)
+			exit()
