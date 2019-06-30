@@ -11,13 +11,16 @@ class Nation(object):
         self.sliver+=n_sl
         self.bronze+=n_br
 
+#@property装饰器 调用方法时可以不加括号
     @property
     def count_total(self):
         return self.gold+self.sliver+self.bronze
 
+#有了__str__方法 可以直接Print类二无需在方法中写print
     def __str__(self):
         return '{0}: Gold {1},Sliver {2},Bronze {3} '.format(self.nation,self.gold,self.sliver,self.bronze)
 
+#新增一个现实奖牌的外部函数
 def medal_List(m_list,sort_meth='gold'):
     if sort_meth=='gold':
         Ord_Gold=sorted(m_list,key=lambda x:x.gold,reverse=True)
@@ -28,7 +31,7 @@ def medal_List(m_list,sort_meth='gold'):
         Ord_Total=sorted(m_list,key=lambda x:x.count_total,reverse=True)
         for j in range(len(Ord_Total)):
             print ('奖牌总数排行榜：\n')
-            print ('No.%d:'%(j+1),Ord_Total[j],Ord_Total[j].count_total, )
+            print ('No.%d:'%(j+1),Ord_Total[j],Ord_Total[j].count_total)
 
 if __name__=='__main__':
     CHN=Nation('中国',26,18,26)
