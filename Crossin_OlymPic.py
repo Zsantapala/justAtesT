@@ -23,12 +23,12 @@ def medal_List(m_list,sort_meth='gold'):
         Ord_Gold=sorted(m_list,key=lambda x:x.gold,reverse=True)
         for i in range(len(Ord_Gold)):
             print ('金牌数排行榜：\n')
-            print ('No.%d:'%(i+1),Ord_Gold[i])
+            print ('No.%d:'%(i+1),Ord_Gold[i].gold)
     else:
         Ord_Total=sorted(m_list,key=lambda x:x.count_total,reverse=True)
         for j in range(len(Ord_Total)):
             print ('奖牌总数排行榜：\n')
-            print ('No.%d:'%(j+1),Ord_Total[j] )
+            print ('No.%d:'%(j+1),Ord_Total[j],Ord_Total[j].count_total, )
 
 if __name__=='__main__':
     CHN=Nation('中国',26,18,26)
