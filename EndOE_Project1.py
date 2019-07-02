@@ -1,21 +1,29 @@
 #-*-coding:utf-8 -*-
 #!/usr/bin/python
 from bs4 import BeautifulSoup
-import re,time,requests,os,_thread
+import re,time,requests,os,threading
 
-def save_img(img_arrd):
-    img=requests.get(img_arrd).content
-    name = 'img//'+re.findall(r'\b\w+.jpg\b', img_arrd)[0]
-    with open(name,'wb') as f:
-        f.write(img)
 
-def open_web(web):
-    get_w=requests.get(web).text
-    soup=BeautifulSoup(get_w,'lxml')
-    find_img=soup.find_all('img',attrs={"class":"illustration"})
-    img_arrd_list=[x['src'] for x in find_img]
+def save_img(img_arrd_list):
     for img in img_arrd_list:
-        _thread.start_new_thread(save_img,(img,))
+        url='http:'+img
+        pic=requests.get(url).content
+        name = 'img//'+re.findall(r'\b\w+.jpg\b',img)[0]
+        with open(name,'wb') as f:
+            f.write(pic)
+
+def open_web(start,end):
+    for i in range(start,end):
+        lock = threading.Lock()
+        lock.acquire()
+        web='https://www.qiushibaike.com/imgrank/page/%d' %i
+        get_w=requests.get(web).text
+        soup=BeautifulSoup(get_w,'lxml')
+        find_img=soup.find_all('img',attrs={"class":"illustration"})
+        img_arrd_list=[x['src'] for x in find_img]
+        son_thread=threading.Thread(target=save_img,args=(img_arrd_list,))
+        son_thread.start()
+        lock.release()
 
 def qiushi_analy():
     print ('正在解析网址请稍后......')
@@ -25,9 +33,9 @@ def qiushi_analy():
     last_page=int(re.findall(r'\d+',page[-2].span.string)[0])
     print ('搜索到网址共有%d页' %last_page)
     while True:
-        start_p=input('请输入开始页')
-        end_p=input('请输入结束页')
         while True:
+            start_p = input('请输入开始页')
+            end_p = input('请输入结束页')
             try :
                 start_num=int(start_p)
                 end_num=int(end_p)
@@ -45,13 +53,14 @@ def qiushi_analy():
             start_num=end_num
             break
         elif start_num==end_num:
-            start_num=1
+            end_num+=1
             break
         else:
             break
-    for i in range(start_num,end_num):
-        web='https://www.qiushibaike.com/imgrank/page/%d' %i
-        _thread.start_new_thread(open_web,(web,))
+    main_theard=threading.Thread(target=open_web,args=(start_num,end_num))
+    main_theard.start()
+
+
 
 
 if __name__=='__main__':
