@@ -1,7 +1,7 @@
 #-*-coding:utf-8 -*-
 #!/usr/bin/python
 from bs4 import BeautifulSoup
-import re,time,requests,os,threading
+import re,requests,os,threading
 
 def save_img(img_arrd_list):
     for img in img_arrd_list:
