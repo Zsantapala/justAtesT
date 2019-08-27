@@ -3,7 +3,7 @@ import requests, csv, threading, time, os, re
 Moive = []
 headers = ['Rnk', 'id', 'average', 'title', 'casts', 'Moive_url', 'image']
 
-def getMoive(data,rnk):
+def getMoive(data, rnk):    #获取电影信息
     global Movie
     try:
         M_info = {
@@ -19,7 +19,7 @@ def getMoive(data,rnk):
     except:
         print('getMovie Error')
 
-def openUrl(num):
+def openUrl(num):             #打开网页获取网页信息并调用getMoive获取电影信息
     url = 'https://api.douban.com/v2/movie/top250?start={num}&apikey=0df993c66c0c636e29ecbb5344252a4a'.format(num=str(num))
     try:
         page_data = requests.get(url).json()
@@ -36,7 +36,7 @@ def openUrl(num):
     except:
         print('openUrl Error,please check code!')
 
-def capAll():
+def capAll():              #调用openurl函数打开所有相关网页
     ts1 = []
     for startnum in range(0, 250, 20):
         print('正在打开第%d个' %startnum)
@@ -46,7 +46,7 @@ def capAll():
     for t in ts1:
         t.join()
 
-def save_as_csv(header,rows):
+def save_as_csv(header,rows):   #保存csv文件
     try:
         with open('Movie250.csv', 'w', newline='') as f:
             f_csv = csv.DictWriter(f, header)
@@ -55,7 +55,7 @@ def save_as_csv(header,rows):
     except:
         print('saveError')
 
-def read_from_csv():
+def read_from_csv():          #读取csv文件
     try:
         new_data = []
         with open('Movie250.csv', newline='') as r_csv:
@@ -66,7 +66,7 @@ def read_from_csv():
     except FileNotFoundError:
         print('文件不存在')
 
-def downloadIMG(moive):
+def downloadIMG(moive):     #下载电影图片
     try:
         picurl = moive['image']
         picname = 'img//' + moive['title']+'.jpeg'
@@ -75,7 +75,7 @@ def downloadIMG(moive):
             img.write(get_pic)
     except:
         print('downloadImg Error')
-def get_all_img(data):
+def get_all_img(data):    #批量下载电影图片
     tm_s = []
     for img in range(len(data)):
         tm = threading.Thread(target=downloadIMG, args=(data[img],))
@@ -84,13 +84,13 @@ def get_all_img(data):
     for t in tm_s:
         t.join()
 
-def display_info(movie):
+def display_info(movie):   #打印电影信息到控制台
     print('影片：'+movie['title'])
     print('排名第：'+movie['Rnk'])
     print('演员：'+movie['casts'])
     print('评分：'+movie['average'])
 
-def int_or_str(key,data):
+def int_or_str(key,data):    #判断输入
     try:
         num = int(key)
         for Rnk in data:
@@ -101,7 +101,7 @@ def int_or_str(key,data):
             if key == title['title']:
                 return title
 
-def get_input(info,data):
+def get_input(info,data):    #分析输入数字
     catch_info = re.findall(r'\b\d-\w+|\b\d-\d+', info)
     if catch_info:
         g_info = catch_info[0].split('-')
