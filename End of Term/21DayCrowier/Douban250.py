@@ -77,4 +77,4 @@ if __name__ == '__main__':
     time.sleep(5)
     new_data = sorted(Moive, key=lambda x: x['Rnk'])
     while True:
-        pass
+        input_info = input('请输入相应的数字')
