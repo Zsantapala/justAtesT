@@ -1,5 +1,5 @@
 #-*-coding:utf-8-*-
-import requests, csv, time, threading
+import requests, csv, time, threading, os
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 
@@ -42,12 +42,18 @@ class Zhao_Ping():
             print('cra_job error')
 
     def get_cookies(self):
-        sdir = r'F:\Exercise\Crossin\Zsanta_jat\End of Term\21DayCrowier\chromedriver.exe'
-        dr = webdriver.Chrome(executable_path=sdir)
-        dr.get(self.job[0]['job_url'])
-        coo = dr.get_cookies()
-        for c in coo:
-            self.cookie_dic[c['name']] = c['value']
+        dirs = os.getcwd()
+        files = dirs+'\\chromedriver.exe'
+        dr = webdriver.Chrome(executable_path=files)
+        for job in self.job:
+            dr.get(job['job_url'])
+            coo = dr.get_cookies()
+            for c in coo:
+                self.cookie_dic[c['name']] = c['value']
+            time.sleep(10)
+            if len(self.cookie_dic) > 1:
+                return self.cookie_dic
+
 
     def cra_web_desc(self, url):
         try:
@@ -85,32 +91,36 @@ class Zhao_Ping():
             print('Save Error!')
 
 if __name__ == '__main__':
-    cs = Zhao_Ping('bj')
-    cs.cra_job()
-    print('正在抓取信息请稍后......')
-    print(cs.job)
-    time.sleep(3)
-    print('一共获取到%d条记录' %len(cs.job))
-    cs.csv_job()
-    time.sleep(3)
-    print('正在保存记录请稍等......')
-    line = input('请输入想获取多少条记录\n')
+    city = input('请输入想要查询的城市信息的城市名拼音缩写\n（例如：北京为bj，上海为sh,暂只支持北京、上海、深圳、广州、成都、杭州、天津、武汉8个城市)：\n')
     try:
-        l = int(line)
-    except ValueError:
-        print('请输入正确数字')
-    if not cs.cookie_dic:
-        cs.get_cookies()
-    print(cs.cookie_dic)
-    time.sleep(30)
-    if 0 < l <= len(cs.job):
-        ts = []
-        for s in range(l):
-            term = threading.Thread(target=cs.cra_web_desc, args=(cs.job[s],))
-            term.start()
-            ts.append(term)
-        for t in ts:
-            t.join()
-    cs.csv_job(2)
-    time.sleep(3)
-    print('正在保存文件，请稍等')
+        cs = Zhao_Ping(city.lower().strip())
+        cs.cra_job()
+        print('正在抓取信息请稍后......')
+        time.sleep(3)
+        print('一共获取到%d条记录' % len(cs.job))
+        cs.csv_job()
+        print('正在保存记录请稍等......')
+        time.sleep(3)
+        line = input('请输入想获取多少条记录\n')
+        line_s = int(line)
+        if 0 < line_s <= len(cs.job):
+            if not cs.cookie_dic:
+                cs.get_cookies()
+            print(cs.cookie_dic)
+            ts = []
+            for s in range(line_s):
+                term = threading.Thread(target=cs.cra_web_desc, args=(cs.job[s],))
+                term.start()
+                ts.append(term)
+            for t in ts:
+                t.join()
+            if cs.job_desc:
+                cs.csv_job(2)
+                print('正在保存文件，请稍等')
+                time.sleep(3)
+                print('保存完毕！')
+        else:
+            print('条目数不多哦！')
+    except KeyError or ValueError:
+        print('输入城市信息错误,或输入页数错误')
+
