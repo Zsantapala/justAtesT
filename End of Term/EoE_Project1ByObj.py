@@ -125,9 +125,9 @@ if __name__ == '__main__':
     while True:
         choose = input('请选择想要抓取的图片网站1.糗事热图 2.煎蛋无聊图 3.退出\n').strip()
         if choose == '1':
-            QS = QiuShi('https://www.qiushibaike.com/imgrank/' , 'page/')
+            QS = QiuShi('https://www.qiushibaike.com/imgrank/', 'page/')
             totalpage = QS.open_web()
-            print('本站热图总共有%d页' %totalpage)
+            print('本站热图总共有%d页' % totalpage)
             s1, e1 = correct_input(totalpage)
             ts1 = []
             for i in range(s1, e1+1):
@@ -139,7 +139,7 @@ if __name__ == '__main__':
         elif choose == '2':
             JD = JianDan('http://jandan.net/ooxx/', 'page', '-', '#comments')
             totalpage = JD.open_web()
-            print('本站无聊图一共有%d页' %totalpage)
+            print('本站无聊图一共有%d页' % totalpage)
             s2, e2 = correct_input(totalpage)
             ts2 = []
             for i in range(s2,e2+1):

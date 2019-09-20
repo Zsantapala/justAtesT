@@ -99,8 +99,11 @@ if __name__=='__main__':
         btn = tk.Button(info, textvariable=state, width=10, height=2, command=close_all_window)
         btn.place(x=100, y=30)
 
+    def ini_img(button):
+        button.config(background=None)
+
     #按钮部件
-    b1 = tk.Button(windows, width=100, height=100, command=lambda: main_walk((0, 0), b1))
+    b1 = tk.Button(windows, width=100, height=100, image=player1[2], command=lambda: ini_img(b1))
     b1.place(x=0, y=0)
     b2 = tk.Button(windows, width=100, height=100, command=lambda: main_walk((0, 1), b2))
     b2.place(x=100, y=0)
