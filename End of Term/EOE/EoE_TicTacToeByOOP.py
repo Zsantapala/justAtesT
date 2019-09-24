@@ -1,6 +1,7 @@
 #-*-coding:utf-8-*-
 #!/usr/bin/python
 import tkinter as tk
+import threading, random
 
 class My_tk(tk.Tk):
     def __init__(self, checkboard=3, count=3):
@@ -12,22 +13,22 @@ class My_tk(tk.Tk):
         height = str(checkboard*100)
         self.geometry(height+'x'+height)
         self.resizable(width=False, height=False)
-        self.menubars()
         self.image = tk.PhotoImage(file='0.gif')
         self.player1 = ('O', 1, tk.PhotoImage(file='1.gif'))
         self.player2 = ('X', 2, tk.PhotoImage(file='2.gif'))
         self.current_player = self.player1
+        self.win = False
         self.now_pos = []
-        self.com = False
+        self.menubars()
         self.Widgets(self._line)
 
 
     def menubars(self):
         self.menubar = tk.Menu(self)
         self.fileMenu1 = tk.Menu(self.menubar, tearoff=False)
-        self.fileMenu1.add_command(label='人机对战')
+        self.fileMenu1.add_command(label='人机对战', command=lambda an=True: self.stupid_com(an))
         self.fileMenu1.add_separator()
-        self.fileMenu1.add_command(label='人人对战')
+        self.fileMenu1.add_command(label='人人对战', command=lambda an=False: self.stupid_com(an))
         self.menubar.add_cascade(label='模式', menu=self.fileMenu1)
         self.fileMenu2 = tk.Menu(self.menubar, tearoff=False)
         self.fileMenu2.add_command(label='新游戏', command=self.new_game)
@@ -44,14 +45,15 @@ class My_tk(tk.Tk):
                 self._checkerboard[x][y] = self.player1[1]
                 print(self._checkerboard)
                 self.btns[str(x)+'_'+str(y)].config(image=self.player1[2])
-                self.is_Win(x, y)
+                self.win = self.is_Win(x, y)
                 self.now_pos = [pos[0], pos[1]]
                 self.current_player = self.player2
         elif self.current_player[1] == 2:
             if self._checkerboard[x][y] == 0:
                 self._checkerboard[x][y] = self.player2[1]
+                print(self._checkerboard)
                 self.btns[str(x)+'_'+str(y)].config(image=self.player2[2])
-                self.is_Win(x, y)
+                self.win = self.is_Win(x, y)
                 self.now_pos = [pos[0], pos[1]]
                 self.current_player = self.player1
 
@@ -79,9 +81,11 @@ class My_tk(tk.Tk):
         if full < self._line and self.player_win(x, y):
             info = self.current_player[0]+' is Win!!'
             self.state_info(info)
+            return True
         elif full == self._line and not self.player_win(x, y):
             info = 'Draw!!'
             self.state_info(info)
+            return True
 
     def player_win(self, x, y):
         for pos in self.offset:
@@ -135,17 +139,27 @@ class My_tk(tk.Tk):
         else:
             self.warning_info('你还没开始呢')
 
-    def stupid_com(self):
-        if self.com == False:
-            self.com = True
-            com_satrt = self.player2
-            if self.current_player == self.player2:
-                pass
-        else:
-            self.com = False
+    def stupid_com(self, status):
+        if status == True:
+            lock = threading.Lock()
+            while True:
+                if self.current_player == self.player1 and not self.win:
+                    lock.acquire()
+                elif self.current_player == self.player2 and not self.win:
+                    lock.release()
+                    self.main_walk(self.stupid_com_method())
+                else:
+                    break
 
-    def stupid_com_method(self, role):
-        pass
+
+    def stupid_com_method(self):
+        x = random.randint(0, self._line)
+        y = random.randint(0, self._line)
+        for s in range(len(self._checkerboard)):
+            if self._checkerboard[x][y] == 0:
+                return x, y
+            else:
+                continue
 
 if __name__ == '__main__':
     gg = My_tk()
