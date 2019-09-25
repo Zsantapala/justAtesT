@@ -4,13 +4,13 @@ import tkinter as tk
 import random
 
 class My_tk(tk.Tk):
-    def __init__(self, checkboard=3, count=3, width=100, com=False):
+    def __init__(self, checkboard=3, count=3, width=100):
         super().__init__()
         self._line = checkboard
         self.count = count
         self._checkerboard = [[0]*self._line for line in range(self._line)]
         self.offset = [(1, 0), (0, 1), (1, 1), (1, -1)]
-        self.height = str(self._line * 100)
+        self.height = str(self._line * width)
         self.geometry(self.height+'x'+self.height)
         self.resizable(width=False, height=False)
         self.image = tk.PhotoImage(file='0.gif')
@@ -20,15 +20,15 @@ class My_tk(tk.Tk):
         self.win = False
         self.now_pos = []
         self.menubars()
-        self.Widgets(checkboard, width, com)
+        self.Widgets(checkboard, width)
 
 
     def menubars(self):
         self.menubar = tk.Menu(self)
         self.fileMenu1 = tk.Menu(self.menubar, tearoff=False)
-        self.fileMenu1.add_command(label='人机对战')
+        self.fileMenu1.add_command(label='人机对战', command=lambda arg=True: self.action_com(arg))
         self.fileMenu1.add_separator()
-        self.fileMenu1.add_command(label='人人对战' )
+        self.fileMenu1.add_command(label='人人对战', command=self.action_com)
         self.menubar.add_cascade(label='模式', menu=self.fileMenu1)
         self.fileMenu2 = tk.Menu(self.menubar, tearoff=False)
         self.fileMenu2.add_command(label='新游戏', command=self.new_game)
@@ -37,14 +37,14 @@ class My_tk(tk.Tk):
         self.menubar.add_cascade(label='游戏', menu=self.fileMenu2)
         self.fileMenu3 = tk.Menu(self.menubar, tearoff=False)
         self.fileMenu3.add_command(label='井字棋3X3', command=self.g_mode)
-        self.fileMenu3.add_command(label='井字棋10X10', command=lambda x=10, y=3: self.g_mode(x, y))
+        self.fileMenu3.add_command(label='井字棋10X10', command=lambda x=10, y=3, z=50: self.g_mode(x, y, z))
         self.fileMenu3.add_separator()
         self.fileMenu3.add_command(label='五子棋5x5', command=lambda x=5, y=5: self.g_mode(x, y))
         self.fileMenu3.add_command(label='五子棋15x15', command=lambda x=15, y=5: self.g_mode(x, y))
         self.menubar.add_cascade(label='游戏模式', menu=self.fileMenu3)
         self.config(menu=self.menubar)
 
-    def main_walk(self, pos, COMpu=False):
+    def main_walk(self, pos):
         x = pos[0]
         y = pos[1]
         if self.current_player[1] == 1:
@@ -55,7 +55,7 @@ class My_tk(tk.Tk):
                 self.win = self.is_Win(x, y)
                 self.now_pos = [pos[0], pos[1]]
                 self.current_player = self.player2
-        elif self.current_player[1] == 2 and not COMpu:
+        elif self.current_player[1] == 2:
             if self._checkerboard[x][y] == 0:
                 self._checkerboard[x][y] = self.player2[1]
                 print(self._checkerboard)
@@ -63,8 +63,7 @@ class My_tk(tk.Tk):
                 self.win = self.is_Win(x, y)
                 self.now_pos = [pos[0], pos[1]]
                 self.current_player = self.player1
-        elif self.current_player[1] == 2 and COMpu:
-            self.main_walk(self.stupid_com_method())
+
 
     def state_info(self, name):
         self.info = tk.Toplevel(self)
@@ -120,29 +119,23 @@ class My_tk(tk.Tk):
                 break
         return count >= self.count
 
-    def Widgets(self, chk, width, shutdownCOM=True):
+    def Widgets(self, chk, width=100):
         self.btns = {}
-        if shutdownCOM:
-            for x in range(chk):
-                for y in range(chk):
-                    pos = (x, y)
-                    self.btns[str(x)+'_'+str(y)] = tk.Button(self, width=100, height=100, image=self.image, command=lambda s=pos: self.main_walk(s))
-                    self.btns[str(x)+'_'+str(y)].place(x=y*width, y=x*width)
-        else:
-            for x in range(chk):
-                for y in range(chk):
-                    pos = (x, y)
-                    self.btns[str(x)+'_'+str(y)] = tk.Button(self, width=100, height=100, image=self.image, command=lambda x=pos, y=True: self.main_walk(x, y))
-                    self.btns[str(x)+'_'+str(y)].place(x=y*width, y=x*width)
+        for x in range(chk):
+            for y in range(chk):
+                pos = (x, y)
+                self.btns[str(x)+'_'+str(y)] = tk.Button(self, width=100, height=100, image=self.image, command=lambda s=pos: self.main_walk(s))
+                self.btns[str(x)+'_'+str(y)].place(x=y*width, y=x*width)
+
 
     def new_game(self):
         self._checkerboard = [[0] * self._line for line in range(self._line)]
         self.Widgets(self._line)
         self.current_player = self.player1
 
-    def g_mode(self, line=3, key1=3, key2=100, key3=False):
+    def g_mode(self, line=3, key1=3, key2=100):
         self.destroy()
-        self.__init__(line, key1, key2, key3)
+        self.__init__(line, key1, key2)
 
     def step_up(self):
         if self.now_pos and self._checkerboard[self.now_pos[0]][self.now_pos[1]] != 0:
@@ -159,10 +152,25 @@ class My_tk(tk.Tk):
         else:
             self.warning_info('你还没开始呢')
 
+    def action_com(self,status=False):
+        if status:
+            for x in range(self._line):
+                for y in range(self._line):
+                    self.btns[str(x)+'_'+str(y)].config(command=lambda s=(x, y): self.com_start(s))
+        else:
+            for x in range(self._line):
+                for y in range(self._line):
+                    self.btns[str(x)+'_'+str(y)].config(command=lambda s=(x, y): self.main_walk(s))
+
+
+    def com_start(self, pos):
+        self.main_walk(pos)
+        self.main_walk(self.stupid_com_method())
 
     def stupid_com_method(self):
         x = random.randint(0, self._line)
         y = random.randint(0, self._line)
+        print (x,y)
         for s in range(len(self._checkerboard)):
             if self._checkerboard[x][y] == 0:
                 return x, y
