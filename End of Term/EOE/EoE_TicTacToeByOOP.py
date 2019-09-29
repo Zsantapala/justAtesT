@@ -95,7 +95,7 @@ class My_tk(tk.Tk):
             self.state_info(info)
             return True
 
-    def player_win(self, x, y):               #isn't use
+    def player_win(self, x, y):
         for pos in self.offset:
             if self.one_direction(x, y, pos):
                 return True
