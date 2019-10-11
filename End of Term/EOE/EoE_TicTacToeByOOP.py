@@ -26,9 +26,6 @@ class My_tk(tk.Tk):
         self.menubars()
         self.Widgets(checkboard)
 
-    def changesize(self, event):
-        pass
-
     def menubars(self):
         self.menubar = tk.Menu(self)
         self.fileMenu1 = tk.Menu(self.menubar, tearoff=False)
@@ -43,7 +40,6 @@ class My_tk(tk.Tk):
         self.menubar.add_cascade(label='游戏', menu=self.fileMenu2)
         self.fileMenu3 = tk.Menu(self.menubar, tearoff=False)
         self.fileMenu3.add_command(label='井字棋3X3', command=self.g_mode)
-        self.fileMenu3.add_command(label='井字棋10X10', command=lambda x=10, y=3, z=50: self.g_mode(x, y, z))
         self.fileMenu3.add_separator()
         self.fileMenu3.add_command(label='五子棋5x5', command=lambda x=5, y=5: self.g_mode(x, y))
         self.fileMenu3.add_command(label='五子棋15x15', command=lambda x=15, y=5, z=50: self.g_mode(x, y, z))
