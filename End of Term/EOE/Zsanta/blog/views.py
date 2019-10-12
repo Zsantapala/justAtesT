@@ -2,34 +2,30 @@ from django.shortcuts import render,redirect
 from django.http import Http404
 from .models import User, Article, hashID
 from .forms import UserForm, RegisterForm, ArticleForm
-import hashlib, string, random
+import hashlib, string, random, time
 # Create your views here.
-def randomstr():
+def randomstr():                                 #产生随机数
     Words = string.ascii_letters+string.digits
     s = ''
     for num in range(8):
         s += random.choice(Words)
     return s
 
-def hash_code(s,username,method=1):
+def hash_code(s,username,method=1):           #hash检查表
     h = hashlib.sha256()
-    user = User.objects.get(name=username)
-    if method == 1:
+    if method == 1:                           #1为生成hash
         salt = randomstr()
         s += salt
         h.update(s.encode())
         final_h = h.hexdigest()
-        user.hashID_set.create(UhashID=salt)
-        user.save()
-        return final_h
-    else:
+        return final_h, salt                 #返回hash和随机数
+    else:                                    #登录时校验hash
+        user = User.objects.get(name=username)
         salt = hashID.objects.get(u_id=user)
         s += salt.UhashID
         h.update(s.encode())
         final_h = h.hexdigest()
-        return final_h
-
-
+        return final_h, None                #返回hash值
 
 def index(request):
     articles = Article.objects.all()[:10]
@@ -46,7 +42,7 @@ def login(request):
             password = login_form.cleaned_data['password']
             try:
                 user = User.objects.get(name=username)
-                if user.password == hash_code(password, username, 2):
+                if user.password == hash_code(password, username, 2)[0]:
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
                     request.session['user_name'] = user.name
@@ -92,10 +88,13 @@ def register(request):
                     return render(request, 'blog/register.html', locals())  # 当一切都OK的情况下，创建新用户
                 new_user = User.objects.create()
                 new_user.name = username
-                new_user.password = hash_code(password1, username)
+                new_user.password, salt = hash_code(password1, username)
                 new_user.email = email
                 new_user.sex = sex
                 new_user.save()
+                time.sleep(3)
+                uid = User.objects.get(name=username)                           #查询新创建用户
+                hashID.objects.create(u_id=uid, UhashID=salt)                   #关联数据库hashID外链
                 return redirect('login')  # 自动跳转到登录页面
     register_form = RegisterForm()
     return render(request, 'blog/register.html', locals())
@@ -130,7 +129,7 @@ def article(request,article_id):
     return render(request, 'blog/article.html', {'article': article_p, 'edit':edit})
 
 def edit_article(request,article_id):
-    if not request.session.get('is_login', None) :
+    if not request.session.get('is_login', None):
         return redirect('index')
     article_p = Article.objects.get(pk=article_id)
     u_id = request.session.get('user_id', None)
