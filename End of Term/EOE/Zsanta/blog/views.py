@@ -11,22 +11,22 @@ def randomstr():                                 #产生随机数
         s += random.choice(Words)
     return s
 
-def hash_code(s,username,method=1):           #hash检查表
+def hash_code(s):           #hash检查表
     h = hashlib.sha256()
-    if method == 1:                           #1为生成hash
-        salt = randomstr()
-        s += salt
-        h.update(s.encode())
-        final_h = h.hexdigest()
-        return final_h, salt                 #返回hash和随机数
-    else:                                    #登录时校验hash
-        user = User.objects.get(name=username)
-        salt = hashID.objects.get(u_id=user)
-        s += salt.UhashID
-        h.update(s.encode())
-        final_h = h.hexdigest()
-        return final_h, None                #返回hash值
+    salt = randomstr()
+    s += salt
+    h.update(s.encode())
+    final_h = h.hexdigest()
+    return final_h, salt                 #返回hash和随机数''
 
+def get_hash(s,username):
+    h = hashlib.sha256()
+    user = User.objects.get(name=username)
+    salt = hashID.objects.get(u_id=user)
+    s += salt.UhashID
+    h.update(s.encode())
+    final_h = h.hexdigest()
+    return final_h  # 返回hash值
 def index(request):
     articles = Article.objects.all()[:10]
     return render(request, 'blog/index.html', {'articles': articles})
@@ -42,7 +42,7 @@ def login(request):
             password = login_form.cleaned_data['password']
             try:
                 user = User.objects.get(name=username)
-                if user.password == hash_code(password, username, 2)[0]:
+                if user.password == get_hash(password, username):
                     request.session['is_login'] = True
                     request.session['user_id'] = user.id
                     request.session['user_name'] = user.name
@@ -88,7 +88,7 @@ def register(request):
                     return render(request, 'blog/register.html', locals())  # 当一切都OK的情况下，创建新用户
                 new_user = User.objects.create()
                 new_user.name = username
-                new_user.password, salt = hash_code(password1, username)
+                new_user.password, salt = hash_code(password1)
                 new_user.email = email
                 new_user.sex = sex
                 new_user.save()
