@@ -1,4 +1,4 @@
 import pandas as pd
 from pandas import Series
 import numpy as np
-f = open(r'', encoding='utf-8')C:\Users\Administrator\Desktop\task_1_zhaopin_data.csv
+f = open(r'C:\Users\Administrator\Desktop\task_1_zhaopin_data.csv', encoding='utf-8')
