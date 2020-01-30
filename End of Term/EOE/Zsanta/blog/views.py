@@ -154,8 +154,7 @@ def arti_list(request,page=1):
     if total < 10:
         total_page = 1
         Articles = Article.objects.all()
-        return render(request, 'blog/article_list.html', {'articles': Articles,
-                                                          'total_page': total_page, 'page': page})
+        return render(request, 'blog/article_list.html', {'articles': Articles, 'total_page': total_page, 'page': page})
     else:
         if total % 10 == 0:
             total_page = total
@@ -165,5 +164,4 @@ def arti_list(request,page=1):
             return redirect('index')
         else:
             Articles = Article.objects.all()[(page - 1) * 10:10]
-            return render(request, 'blog/article_list.html', {'articles': Articles,
-                                                              'total_page': total_page, 'page': page})
+            return render(request, 'blog/article_list.html', {'articles': Articles,'total_page': total_page, 'page': page})
