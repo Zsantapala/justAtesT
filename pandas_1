@@ -1,4 +1,130 @@
-import pandas as pd
-import numpy as np
-lj = pd.read_csv(r'C:\Users\Administrator\Desktop\task_2_lianjia_data.csv', encoding='utf-8')
+#!/usr/bin/env python
+# coding: utf-8
 
+# ## 任务
+# - 导入 tushare 数据包，提取 A 股基本数据信息，取毛利率 gpr 和净利率 npr 的平均数，并分别以水球图和仪表盘图表现出来(阅读参考文章 2、3);
+# - 统计 A 股各行业公司数量，并跟进行业分布数据作词云图(阅读参考文章 4、5);
+# - 利用 tushare 提取茅台数据中的最高最低价，作双折线图，茅台股票代码 600519 (提示:提取单个股票信息 df = ts.get_hist_data('600519',start=' ',end=' ') )(阅读参考文章 1);
+#
+
+# In[1]:
+
+
+import tushare as ts
+
+df = ts.get_stock_basics()
+
+df.head(2)
+# df.sort_index(axis=0) # 第二种显示
+
+
+# ### 导入 tushare 数据包，提取 A 股基本数据信息，取毛利率 gpr 和净利率 npr 的平均数，并分别以水球图和仪表盘图表现出来(阅读参考文章 2、3);
+
+# In[2]:
+
+
+# df.columns
+# df.sort_index(axis=0)
+import pandas as pd
+from pyecharts import options as opts
+from pyecharts.charts import WordCloud, Line, Gauge,Liquid,Page
+from pyecharts.globals import SymbolType
+
+gpr_mean = round(df['gpr'].mean(),2)
+npr_mean = abs(round(df.npr.mean(),2))
+gpr_mean, npr_mean
+
+
+# In[3]:
+
+
+def liquid_base() -> Liquid:
+    c = (
+        Liquid()
+        .add("lq", [gpr_mean/100,npr_mean/100])
+        .set_global_opts(title_opts=opts.TitleOpts(title="水球图-毛利率&净利率"))
+    )
+    return c
+
+liquid_base().render_notebook()
+liquid_base().render('水球图.html')
+
+
+# In[4]:
+
+
+def gauge_base() -> Gauge:
+    c = (
+        Gauge()
+        .add(
+            "Mean value of npr",
+            [('净利率npr',npr_mean)],
+            split_number = 10
+        )
+        .set_global_opts(title_opts=opts.TitleOpts(title="Gauge-仪表盘"))
+    )
+    return c
+
+gauge_base().render_notebook()
+gauge_base().render('Gauge.html')
+
+
+# ### 统计 A 股各行业公司数量，并跟进行业分布数据作词云图(阅读参考文章 4、5);
+
+# In[5]:
+
+
+from pyecharts.globals import SymbolType
+from pyecharts.globals import GeoType
+
+dg = df.groupby('industry')['name'].agg('count')
+name = dg.index.values.tolist()
+counts = dg.values.tolist()
+words = list(zip(name,counts))
+
+def wordcloud_base() -> WordCloud:
+    c = (
+        WordCloud()
+        .add("", words,
+             word_size_range=[20, 100],
+#              shape='diamond',
+             shape=SymbolType.DIAMOND,
+             rotate_step = 45
+        )
+        .set_global_opts(title_opts=opts.TitleOpts(title="WordCloud-上市公司行业分布"))
+    )
+    return c
+
+wordcloud_base().render_notebook()
+wordcloud_base().render('WordCloud-上市公司行业分布.html')
+
+
+# ### 利用 tushare 提取茅台数据中的最高最低价，作双折线图，茅台股票代码 600519 (提示:提取单个股票信息 df = ts.get_hist_data('600519',start=' ',end=' ') )(阅读参考文章 1);
+
+# In[6]:
+
+
+maotai = ts.get_hist_data('600519')
+maotai = (maotai[['high','low']]).sort_index()
+xdata = maotai.index.values.tolist()
+ydata1 = maotai['high'].tolist()
+ydata2 = maotai['low'].tolist()
+
+def line_base() -> Line:
+    c = (
+        Line()
+        .add_xaxis(xdata)
+        .add_yaxis("high", ydata1,
+                  markpoint_opts=opts.MarkPointOpts(
+                      data=[opts.MarkPointItem(name="highest price", coord=[ydata1.index(max(ydata1)), max(ydata1)], value=max(ydata1))],
+                      symbol_size = 80))
+        .add_yaxis("low", ydata2,
+                  markpoint_opts=opts.MarkPointOpts(
+                      data=[opts.MarkPointItem(name="lowest price", coord=[ydata2.index(min(ydata2)), min(ydata2)], value=min(ydata2))],
+                      symbol_size = 80))
+        .set_global_opts(title_opts=opts.TitleOpts(title="茅台股价-最高最低价"))
+    )
+    return c
+
+line_base().render_notebook()
+line_base().render('Line-茅台股价-最高最低价.html')
